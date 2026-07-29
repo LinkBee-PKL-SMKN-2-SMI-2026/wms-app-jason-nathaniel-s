@@ -8,11 +8,11 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: example
+      POSTGRES_DB: wms
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d example"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d wms"]
       interval: 5s
       timeout: 5s
       retries: 5
