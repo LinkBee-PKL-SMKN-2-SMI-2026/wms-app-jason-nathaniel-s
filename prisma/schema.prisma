@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -13,80 +8,65 @@ datasource db {
 }
 
 model Users {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(STAFF)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  stockMovements  Stock_Movements[]
-  activityLogs    Activity_Logs[]
-}
-
-enum Role {
-  ADMIN
-  STAFF
+  id             String            @id @default(uuid())
+  name           String
+  email          String            @unique
+  password       String
+  role           Role              @default(STAFF)
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  activityLogs   Activity_Logs[]
+  stockMovements Stock_Movements[]
 }
 
 model Categories {
-  id          String   @id @default(uuid())
-  name        String   @unique
+  id          String     @id @default(uuid())
+  name        String     @unique
   description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  products Products[]
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  products    Products[]
 }
 
 model Locations {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  code      String   @unique
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  products Products[]
+  id        String     @id @default(uuid())
+  name      String     @unique
+  code      String     @unique
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  products  Products[]
 }
 
 model Products {
-  id          String   @id @default(uuid())
-  name        String
-  sku         String   @unique
-  description String?
-  stock       Int      @default(0)
-  minimumStock Int     @default(10)
-  isActive    Boolean  @default(true)
-  categoryId  String
-  locationId  String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  category      Categories       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  location      Locations        @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  id             String            @id @default(uuid())
+  name           String
+  sku            String            @unique
+  description    String?
+  stock          Int               @default(0)
+  minimumStock   Int               @default(10)
+  isActive       Boolean           @default(true)
+  categoryId     String
+  locationId     String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  category       Categories        @relation(fields: [categoryId], references: [id])
+  location       Locations         @relation(fields: [locationId], references: [id])
   stockMovements Stock_Movements[]
 }
 
 model Stock_Movements {
-  id          String           @id @default(uuid())
-  type        MovementType
-  quantity    Int
-  notes       String?
-  userId      String
-  productId   String
-  createdAt   DateTime         @default(now())
-
-  user    Users    @relation(fields: [userId], references: [id], onDelete: Restrict)
-  product Products @relation(fields: [productId], references: [id], onDelete: Restrict)
-}
-
-enum MovementType {
-  INBOUND
-  OUTBOUND
+  id        String       @id @default(uuid())
+  type      MovementType
+  quantity  Int
+  notes     String?
+  userId    String
+  productId String
+  createdAt DateTime     @default(now())
+  product   Products     @relation(fields: [productId], references: [id])
+  user      Users        @relation(fields: [userId], references: [id])
 }
 
 model Activity_Logs {
@@ -97,6 +77,15 @@ model Activity_Logs {
   detail    Json?
   userId    String
   createdAt DateTime @default(now())
+  user      Users    @relation(fields: [userId], references: [id])
+}
 
-  user Users @relation(fields: [userId], references: [id], onDelete: Restrict)
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum MovementType {
+  INBOUND
+  OUTBOUND
 }

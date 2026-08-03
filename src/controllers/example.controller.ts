@@ -19,9 +19,6 @@ import type {
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-// ===========================
-// POST /api/example/ - Create Single
-// ===========================
 
 export const createExample = catchAsync(async (req, res) => {
   const { name, description, isActive } = req.body as CreateExampleRequest;
@@ -44,9 +41,6 @@ export const createExample = catchAsync(async (req, res) => {
   });
 });
 
-// ===========================
-// GET /api/example/ - Get All (Query: pagination, search, filter, sort)
-// ===========================
 
 export const getAllExamples = catchAsync(async (req, res) => {
   const {
@@ -98,9 +92,6 @@ export const getAllExamples = catchAsync(async (req, res) => {
   });
 });
 
-// ===========================
-// GET /api/example/:id - Get By ID
-// ===========================
 
 export const getExampleById = catchAsync(async (req, res) => {
   const { id } = req.params as unknown as GetExampleByIdParams;
@@ -123,9 +114,6 @@ export const getExampleById = catchAsync(async (req, res) => {
   });
 });
 
-// ===========================
-// PUT /api/example/:id - Full Update
-// ===========================
 
 export const updateExample = catchAsync(async (req, res) => {
   const { id } = req.params as unknown as UpdateExampleParams;
@@ -157,9 +145,6 @@ export const updateExample = catchAsync(async (req, res) => {
   });
 });
 
-// ===========================
-// PATCH /api/example/:id - Partial Update
-// ===========================
 
 export const partialUpdateExample = catchAsync(async (req, res) => {
   const { id } = req.params as unknown as PartialUpdateExampleParams;
@@ -196,9 +181,6 @@ export const partialUpdateExample = catchAsync(async (req, res) => {
   });
 });
 
-// ===========================
-// DELETE /api/example/:id - Delete
-// ===========================
 
 export const deleteExample = catchAsync(async (req, res) => {
   const { id } = req.params as unknown as DeleteExampleParams;
@@ -219,9 +201,6 @@ export const deleteExample = catchAsync(async (req, res) => {
   });
 });
 
-// ===========================
-// POST /api/example/bulk - Bulk Create (Array Body)
-// ===========================
 
 export const bulkCreateExamples = catchAsync(async (req, res) => {
   const { items } = req.body as BulkCreateExampleRequest;
@@ -271,9 +250,6 @@ export const bulkCreateExamples = catchAsync(async (req, res) => {
   });
 });
 
-// ===========================
-// POST /api/example/with-items - Nested Object Validation
-// ===========================
 
 export const createExampleWithItems = catchAsync(async (req, res) => {
   const { name, category, items } = req.body as CreateExampleWithItemsRequest;

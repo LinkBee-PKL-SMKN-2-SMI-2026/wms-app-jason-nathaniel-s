@@ -19,36 +19,36 @@ import {
   bulkCreateExamples,
   createExampleWithItems,
 } from '../controllers/example.controller';
+import { authenticate } from '../middlewares/authenticate.middleware';
+import { authorize } from '../middlewares/authorize.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import { AppError } from '../utils/AppError';
 
 const router = Router();
 
-// GET /api/example/ - Ambil semua data (dengan pagination, search, filter, sort)
-router.get('/', validate(GetAllExampleSchema), getAllExamples);
+router.get(
+  '/',
+  authenticate,
+  validate(GetAllExampleSchema),
+  getAllExamples,
+);
 
-// POST /api/example/ - Buat data baru (single)
-router.post('/', validate(CreateExampleSchema), createExample);
+router.get('/:id', authenticate,validate(GetExampleByIdSchema), getExampleById);
 
-// POST /api/example/bulk - Bulk create (array body)
-router.post('/bulk', validate(BulkCreateExampleSchema), bulkCreateExamples);
+router.post('/', authenticate, authorize('ADMIN'), validate(CreateExampleSchema), createExample);
 
-// POST /api/example/with-items - Buat data dengan nested items
-router.post('/with-items', validate(CreateExampleWithItemsSchema), createExampleWithItems);
+router.post('/bulk', authenticate, authorize('ADMIN'), validate(BulkCreateExampleSchema), bulkCreateExamples);
 
-// GET /api/example/:id - Ambil data by ID
-router.get('/:id', validate(GetExampleByIdSchema), getExampleById);
+router.post('/with-items', authenticate, authorize('ADMIN'), validate(CreateExampleWithItemsSchema), createExampleWithItems);
 
-// PUT /api/example/:id - Full update
-router.put('/:id', validate(UpdateExampleSchema), updateExample);
+router.get('/:id', authenticate,validate(GetExampleByIdSchema), getExampleById);
 
-// PATCH /api/example/:id - Partial update
-router.patch('/:id', validate(PartialUpdateExampleSchema), partialUpdateExample);
+router.put('/:id', authenticate, authorize('ADMIN'), validate(UpdateExampleSchema), updateExample);
 
-// DELETE /api/example/:id - Hapus data
-router.delete('/:id', validate(DeleteExampleSchema), deleteExample);
+router.patch('/:id', authenticate, authorize('ADMIN'), validate(PartialUpdateExampleSchema), partialUpdateExample);
 
-// Contoh kalau salah method di path mana pun
+router.delete('/:id', authenticate, authorize('ADMIN'), validate(DeleteExampleSchema), deleteExample);
+
 router.all('/*path', (req, res, next) => {
   next(new AppError(`Method ${req.method} tidak diizinkan di endpoint ini`, 405));
 });

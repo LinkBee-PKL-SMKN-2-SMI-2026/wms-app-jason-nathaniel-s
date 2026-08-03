@@ -1,8 +1,5 @@
 import z from 'zod';
 
-// ===========================
-// Create Single
-// ===========================
 
 export const CreateExampleSchema = z.object({
   body: z.object({
@@ -11,10 +8,6 @@ export const CreateExampleSchema = z.object({
     isActive: z.coerce.boolean().default(true),
   }),
 });
-
-// ===========================
-// Get All (Query Params: Pagination, Search, Filter, Sort)
-// ===========================
 
 export const GetAllExampleSchema = z.object({
   query: z.object({
@@ -26,19 +19,12 @@ export const GetAllExampleSchema = z.object({
   }),
 });
 
-// ===========================
-// Get By ID (Params)
-// ===========================
 
 export const GetExampleByIdSchema = z.object({
   params: z.object({
     id: z.uuid({ error: 'ID harus berupa UUID yang valid' }),
   }),
 });
-
-// ===========================
-// Update Full (PUT)
-// ===========================
 
 export const UpdateExampleSchema = z.object({
   params: z.object({
@@ -51,9 +37,6 @@ export const UpdateExampleSchema = z.object({
   }),
 });
 
-// ===========================
-// Partial Update (PATCH)
-// ===========================
 
 export const PartialUpdateExampleSchema = z.object({
   params: z.object({
@@ -70,19 +53,12 @@ export const PartialUpdateExampleSchema = z.object({
     }),
 });
 
-// ===========================
-// Delete By ID (Params)
-// ===========================
-
 export const DeleteExampleSchema = z.object({
   params: z.object({
     id: z.uuid({ error: 'ID harus berupa UUID yang valid' }),
   }),
 });
 
-// ===========================
-// Bulk Create (Array Body)
-// ===========================
 
 export const BulkCreateExampleSchema = z.object({
   body: z.object({
@@ -100,9 +76,6 @@ export const BulkCreateExampleSchema = z.object({
   }),
 });
 
-// ===========================
-// Create With Nested Items
-// ===========================
 
 export const CreateExampleWithItemsSchema = z.object({
   body: z.object({

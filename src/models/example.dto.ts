@@ -11,9 +11,6 @@ import {
 } from '../validations/example.validation';
 import type { Example, ExampleItem } from '../../src/generated/prisma/client';
 
-// ===========================
-// Request Types (inferred dari Zod)
-// ===========================
 
 export type CreateExampleRequest = z.infer<typeof CreateExampleSchema>['body'];
 
@@ -33,9 +30,6 @@ export type BulkCreateExampleRequest = z.infer<typeof BulkCreateExampleSchema>['
 
 export type CreateExampleWithItemsRequest = z.infer<typeof CreateExampleWithItemsSchema>['body'];
 
-// ===========================
-// Data Response Types (tanpa wrapper)
-// ===========================
 
 export interface ExampleWithItemsData {
   id: string;
