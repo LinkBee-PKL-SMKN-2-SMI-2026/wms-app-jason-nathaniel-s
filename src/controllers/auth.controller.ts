@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '../../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import type { Response } from 'express';
 
 import { catchAsync } from '../utils/catchAsync';
 import { AppError } from '../utils/AppError';
@@ -15,6 +16,7 @@ import type {
   RegisterRequest,
   LoginRequest,
 } from '../models/auth.dto';
+import type { TokenPayload, AuthRequest } from '../models/auth.model';
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -37,7 +39,7 @@ export const register = catchAsync(async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.users.create({
+  const user = await prisma.users.create({
     data: {
       name,
       email,
@@ -124,7 +126,7 @@ export const login = catchAsync(async (req, res) => {
     `User ${user.email} berhasil login`,
   );
 
-     res.status(200).json({
+  res.status(200).json({
     success: true,
     message: 'Login berhasil',
     data: {
@@ -138,5 +140,39 @@ export const login = catchAsync(async (req, res) => {
         isActive: user.isActive,
       },
     },
+  });
+});
+
+export const getMe = catchAsync(async (req: AuthRequest, res: Response) => {
+  const { userId } = req.user as TokenPayload;
+
+  const user = await prisma.users.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isActive: true,
+      createdAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError('User tidak ditemukan', 404);
+  }
+
+  logger.info(
+    {
+      event: 'GET_ME_SUCCESS',
+      userId: user.id,
+    },
+    `Data user ${user.email} berhasil diambil`,
+  );
+
+  res.json({
+    success: true,
+    message: 'Data user berhasil diambil',
+    data: user,
   });
 });
