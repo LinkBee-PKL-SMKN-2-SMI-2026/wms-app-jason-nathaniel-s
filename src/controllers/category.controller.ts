@@ -138,10 +138,7 @@ export const deleteCategory = catchAsync(async (req, res) => {
   });
 
   if (productsCount > 0) {
-    throw new AppError(
-      'Tidak bisa menghapus kategori karena masih ada produk yang terkait',
-      400,
-    );
+    throw new AppError('Tidak bisa menghapus kategori karena masih ada produk yang terkait', 400);
   }
 
   await prisma.categories.delete({ where: { id } });

@@ -31,9 +31,7 @@ export const authorize = (...roles: string[]) => {
         }
 
         if (!roles.includes(user.role)) {
-          return next(
-            new AppError('Anda tidak memiliki akses ke resource ini', 403)
-          );
+          return next(new AppError('Anda tidak memiliki akses ke resource ini', 403));
         }
 
         next();

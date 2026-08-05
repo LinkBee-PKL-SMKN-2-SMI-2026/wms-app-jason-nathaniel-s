@@ -7,15 +7,9 @@ import { catchAsync } from '../utils/catchAsync';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
 
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from '../utils/jwt';
+import { generateAccessToken, generateRefreshToken } from '../utils/jwt';
 
-import type {
-  RegisterRequest,
-  LoginRequest,
-} from '../models/auth.dto';
+import type { RegisterRequest, LoginRequest } from '../models/auth.dto';
 import type { TokenPayload, AuthRequest } from '../models/auth.model';
 
 const adapter = new PrismaPg({
@@ -98,10 +92,7 @@ export const login = catchAsync(async (req, res) => {
     throw new AppError('Email atau password salah', 401);
   }
 
-  const isMatch = await bcrypt.compare(
-    password,
-    user.password,
-  );
+  const isMatch = await bcrypt.compare(password, user.password);
 
   if (!isMatch) {
     throw new AppError('Email atau password salah', 401);

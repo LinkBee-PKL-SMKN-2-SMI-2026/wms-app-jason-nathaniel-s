@@ -3,11 +3,7 @@ import { AppError } from '../utils/AppError';
 import { verifyAccessToken } from '../utils/jwt';
 import type { AuthRequest } from '../models/auth.model';
 
-export const authenticate = (
-  req: AuthRequest,
-  _res: Response,
-  next: NextFunction,
-): void => {
+export const authenticate = (req: AuthRequest, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
