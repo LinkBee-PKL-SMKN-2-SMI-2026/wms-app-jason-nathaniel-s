@@ -4,6 +4,7 @@ import category from './category.route';
 import location from './location.route';
 import product from './product.route';
 import movement from './stock-movement.route';
+import report from './reporting.route';
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use('/categories', category);
 router.use('/locations', location);
 router.use('/products', product);
 router.use('/movements', movement);
+router.use('/reports', report);
 
 export default router;
