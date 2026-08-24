@@ -1,3 +1,4 @@
+import { logActivity } from '../services/activity-log.service';
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '../../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
@@ -67,7 +68,9 @@ export const register = catchAsync(async (req, res) => {
     },
     `User ${user.email} berhasil register`,
   );
-
+  if (user.id) {
+    logActivity({ userId: user.id, action: 'CREATE', entity: 'Users', entityId: user.id });
+  }
   res.status(201).json({
     success: true,
     message: 'Register berhasil',
@@ -116,7 +119,9 @@ export const login = catchAsync(async (req, res) => {
     },
     `User ${user.email} berhasil login`,
   );
-
+  if (user.id) {
+    logActivity({ userId: user.id, action: 'LOGIN', entity: 'Users' });
+  }
   res.status(200).json({
     success: true,
     message: 'Login berhasil',
