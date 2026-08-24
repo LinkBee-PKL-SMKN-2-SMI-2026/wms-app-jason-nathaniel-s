@@ -3,6 +3,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { catchAsync } from '../utils/catchAsync';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
+import { logActivity } from '../services/activity-log.service';
+import type { AuthRequest } from '../models/auth.model';
 import type {
   CreateLocationRequest,
   GetAllLocationQuery,
@@ -18,7 +20,8 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 
-export const createLocation = catchAsync(async (req, res) => {
+export const createLocation = catchAsync(async (req: AuthRequest, res) => {
+  const userId = req.user?.userId;
   const { name, code } = req.body as CreateLocationRequest;
 
   const existingName = await prisma.locations.findUnique({ where: { name } });
@@ -34,6 +37,16 @@ export const createLocation = catchAsync(async (req, res) => {
   const location = await prisma.locations.create({
     data: { name, code },
   });
+
+  if (userId) {
+    logActivity({
+      userId,
+      action: 'CREATE',
+      entity: 'Locations',
+      entityId: location.id,
+      detail: { name },
+    });
+  }
 
   logger.info({ event: 'LOCATION_CREATED', id: location.id }, `Lokasi ${name} berhasil dibuat`);
 
@@ -98,7 +111,8 @@ export const getLocationById = catchAsync(async (req, res) => {
   });
 });
 
-export const updateLocation = catchAsync(async (req, res) => {
+export const updateLocation = catchAsync(async (req: AuthRequest, res) => {
+  const userId = req.user?.userId;
   const { id } = req.params as unknown as UpdateLocationParams;
   const { name, code, isActive } = req.body as UpdateLocationRequest;
 
@@ -130,6 +144,10 @@ export const updateLocation = catchAsync(async (req, res) => {
     data: { name, code, isActive },
   });
 
+  if (userId) {
+    logActivity({ userId, action: 'UPDATE', entity: 'Locations', entityId: id });
+  }
+
   logger.info({ event: 'LOCATION_UPDATED', id }, `Lokasi ${id} berhasil diupdate`);
 
   res.status(200).json({
@@ -139,7 +157,8 @@ export const updateLocation = catchAsync(async (req, res) => {
   });
 });
 
-export const deleteLocation = catchAsync(async (req, res) => {
+export const deleteLocation = catchAsync(async (req: AuthRequest, res) => {
+  const userId = req.user?.userId;
   const { id } = req.params as unknown as DeleteLocationParams;
 
   const existing = await prisma.locations.findUnique({ where: { id } });
@@ -156,6 +175,10 @@ export const deleteLocation = catchAsync(async (req, res) => {
   }
 
   await prisma.locations.delete({ where: { id } });
+
+  if (userId) {
+    logActivity({ userId, action: 'DELETE', entity: 'Locations', entityId: id });
+  }
 
   logger.info({ event: 'LOCATION_DELETED', id }, `Lokasi ${id} berhasil dihapus`);
 

@@ -3,6 +3,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { catchAsync } from '../utils/catchAsync';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
+import { logActivity } from '../services/activity-log.service';
+import type { AuthRequest } from '../models/auth.model';
 import type {
   CreateProductRequest,
   GetAllProductQuery,
@@ -18,7 +20,8 @@ const adapter = new PrismaPg({
 
 const prisma = new PrismaClient({ adapter });
 
-export const createProduct = catchAsync(async (req, res) => {
+export const createProduct = catchAsync(async (req: AuthRequest, res) => {
+  const userId = req.user?.userId;
   const { name, sku, description, stock, minimumStock, categoryId, locationId } =
     req.body as CreateProductRequest;
 
@@ -48,6 +51,16 @@ export const createProduct = catchAsync(async (req, res) => {
       locationId,
     },
   });
+
+  if (userId) {
+    logActivity({
+      userId,
+      action: 'CREATE',
+      entity: 'Products',
+      entityId: product.id,
+      detail: { name, sku },
+    });
+  }
 
   logger.info({ event: 'PRODUCT_CREATED', id: product.id }, `Produk ${name} berhasil dibuat`);
 
@@ -118,7 +131,8 @@ export const getProductById = catchAsync(async (req, res) => {
   });
 });
 
-export const updateProduct = catchAsync(async (req, res) => {
+export const updateProduct = catchAsync(async (req: AuthRequest, res) => {
+  const userId = req.user?.userId;
   const { id } = req.params as unknown as UpdateProductParams;
   const { name, sku, description, minimumStock, categoryId, locationId } =
     req.body as UpdateProductRequest;
@@ -159,6 +173,10 @@ export const updateProduct = catchAsync(async (req, res) => {
     },
   });
 
+  if (userId) {
+    logActivity({ userId, action: 'UPDATE', entity: 'Products', entityId: id });
+  }
+
   logger.info({ event: 'PRODUCT_UPDATED', id }, `Produk ${id} berhasil diupdate`);
 
   res.status(200).json({
@@ -168,7 +186,8 @@ export const updateProduct = catchAsync(async (req, res) => {
   });
 });
 
-export const deleteProduct = catchAsync(async (req, res) => {
+export const deleteProduct = catchAsync(async (req: AuthRequest, res) => {
+  const userId = req.user?.userId;
   const { id } = req.params as unknown as DeleteProductParams;
 
   const existing = await prisma.products.findUnique({ where: { id } });
@@ -185,6 +204,10 @@ export const deleteProduct = catchAsync(async (req, res) => {
   }
 
   await prisma.products.delete({ where: { id } });
+
+  if (userId) {
+    logActivity({ userId, action: 'DELETE', entity: 'Products', entityId: id });
+  }
 
   logger.info({ event: 'PRODUCT_DELETED', id }, `Produk ${id} berhasil dihapus`);
 

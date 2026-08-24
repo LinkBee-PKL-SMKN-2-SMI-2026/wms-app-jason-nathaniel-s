@@ -4,6 +4,7 @@ import type { Response } from 'express';
 import { catchAsync } from '../utils/catchAsync';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
+import { logActivity } from '../services/activity-log.service';
 import type { AuthRequest, TokenPayload } from '../models/auth.model';
 import type {
   CreateInboundRequest,
@@ -18,8 +19,8 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 export const createInbound = catchAsync(async (req: AuthRequest, res: Response) => {
-  const { productId, quantity, notes } = req.body as CreateInboundRequest;
   const { userId } = req.user as TokenPayload;
+  const { productId, quantity, notes } = req.body as CreateInboundRequest;
 
   const result = await prisma.$transaction(async (tx) => {
     const updatedProduct = await tx.products.update({
@@ -37,6 +38,16 @@ export const createInbound = catchAsync(async (req: AuthRequest, res: Response) 
       },
     });
 
+    if (userId) {
+      logActivity({
+        userId,
+        action: 'CREATE',
+        entity: 'Stock_Movements',
+        entityId: movement.id,
+        detail: { type: 'INBOUND', productId, quantity },
+      });
+    }
+
     return { movement, updatedProduct };
   });
 
@@ -53,8 +64,8 @@ export const createInbound = catchAsync(async (req: AuthRequest, res: Response) 
 });
 
 export const createOutbound = catchAsync(async (req: AuthRequest, res: Response) => {
-  const { productId, quantity, notes } = req.body as CreateOutboundRequest;
   const { userId } = req.user as TokenPayload;
+  const { productId, quantity, notes } = req.body as CreateOutboundRequest;
 
   const product = await prisma.products.findUnique({
     where: { id: productId },
@@ -83,6 +94,16 @@ export const createOutbound = catchAsync(async (req: AuthRequest, res: Response)
         productId,
       },
     });
+
+    if (userId) {
+      logActivity({
+        userId,
+        action: 'CREATE',
+        entity: 'Stock_Movements',
+        entityId: movement.id,
+        detail: { type: 'OUTBOUND', productId, quantity },
+      });
+    }
 
     return { movement, updatedProduct };
   });
@@ -127,10 +148,10 @@ export const getMovementHistory = catchAsync(async (req: AuthRequest, res: Respo
       where,
       include: {
         product: {
-          select: { name: true, sku: true },
+          select: { id: true, name: true, sku: true },
         },
         user: {
-          select: { name: true, email: true },
+          select: { id: true, name: true },
         },
       },
       orderBy: { createdAt: 'desc' },
